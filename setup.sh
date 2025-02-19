@@ -13,7 +13,7 @@ pip install --upgrade pip
 pip install flask gunicorn selenium beautifulsoup4
 
 # Baixar o ChromeDriver (ajuste conforme necessário, dependendo da versão do Chrome)
-wget https://chromedriver.storage.googleapis.com/116.0.5845.96/chromedriver_linux64.zip
+wget https://chromedriver.storage.googleapis.com/133.0.6943.53/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip -d /usr/local/bin/
 
 # Garantir permissões adequadas para o ChromeDriver
