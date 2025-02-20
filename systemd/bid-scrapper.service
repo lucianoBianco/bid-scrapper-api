@@ -1,0 +1,12 @@
+[Unit]
+Description=Bid Scrapper API
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/your_user/bid-scrapper-api
+ExecStart=/home/your_user/bid-scrapper-api/venv/bin/gunicorn --config gunicorn_config.py app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

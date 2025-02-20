@@ -1,22 +1,41 @@
 #!/bin/bash
 
-# Atualizar pacotes e instalar dependências
+echo "🚀 Iniciando configuração do ambiente..."
+
+# Atualizar pacotes e instalar dependências básicas
 sudo apt update
-sudo apt install -y python3-pip python3-dev python3-venv nginx
+sudo apt install -y python3-pip python3-venv python3-dev unzip wget curl git nginx
 
 # Criar e ativar ambiente virtual
-python3 -m venv /home/your_user/api/bid-scrapper-api/venv
-source /home/your_user/api/bid-scrapper-api/venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 
-# Instalar dependências do projeto
+# Instalar dependências do Python
 pip install --upgrade pip
-pip install flask gunicorn selenium beautifulsoup4
+pip install -r requirements.txt
 
-# Baixar o ChromeDriver (ajuste conforme necessário, dependendo da versão do Chrome)
+# Instalar o ChromeDriver e o Google Chrome
+echo "🖥 Instalando Chrome e ChromeDriver..."
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt --fix-broken install -y
+rm google-chrome-stable_current_amd64.deb
+
 wget https://chromedriver.storage.googleapis.com/133.0.6943.53/chromedriver_linux64.zip
-unzip chromedriver_linux64.zip -d /usr/local/bin/
-
-# Garantir permissões adequadas para o ChromeDriver
+unzip chromedriver_linux64.zip
+sudo mv chromedriver /usr/local/bin/
 sudo chmod +x /usr/local/bin/chromedriver
+rm chromedriver_linux64.zip
 
-# Configuração do Nginx e Gunicorn será feita manualmente a seguir
+# Configurar o Nginx
+echo "🛠 Configurando Nginx..."
+sudo cp nginx/bid-scrapper-api /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/bid-scrapper-api /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
+
+# Configurar systemd para rodar o serviço automaticamente
+echo "🔄 Configurando serviço systemd..."
+sudo cp systemd/bid-scrapper.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable bid-scrapper
+
+echo "✅ Setup finalizado com sucesso!"
