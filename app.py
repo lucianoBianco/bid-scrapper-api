@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 app = Flask(__name__)
 
 def scrape_website(url):
-  print(f"Iniciando scrape da URL: {url}")
+    print(f"Iniciando scrape da URL: {url}")
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -30,19 +30,16 @@ def scrape_website(url):
         print(f"Acessando URL: {url}")
         driver.get(url)
         print("URL acessada com sucesso")
+        
+        try:
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "page-title"))
+            )
+        except Exception as e:
+            print(f"Erro ao esperar elemento: {str(e)}")
+            driver.quit()
+            return {"error": f"Erro ao carregar os dados: {str(e)}"}
 
-    except Exception as e:
-        return {"error": f"Erro ao carregar os dados: {str(e)}"}
-
-    try:
-        WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "page-title"))
-        )
-    except Exception as e:
-        driver.quit()
-        return {"error": f"Erro ao carregar os dados: {str(e)}"}
-
-    try:
         html = driver.page_source
         print("HTML capturado")
         
@@ -72,6 +69,11 @@ def scrape_website(url):
             except:
                 pass
         return {"error": f"Erro durante o scrape: {str(e)}"}
+
+@app.route("/")
+def health_check():
+    return jsonify({"status": "ok", "message": "API is running"}), 200
+
 @app.route("/scrape", methods=["POST"])
 def scrape():
     data = request.get_json()
