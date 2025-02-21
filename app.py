@@ -4,6 +4,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import tempfile
+import shutil
+import os
 
 app = Flask(__name__)
 
@@ -19,8 +22,13 @@ def scrape_website(url):
     options.add_argument("--single-process")
     options.add_argument("--disable-javascript")
     options.add_argument("--remote-debugging-port=9222")
-    options.binary_location = "/snap/bin/chromium"  # Caminho do Chromium no Snap
     
+    # Criar diretório temporário único
+    temp_dir = tempfile.mkdtemp()
+    options.add_argument(f'--user-data-dir={temp_dir}')
+    options.binary_location = "/snap/bin/chromium"
+    
+    driver = None
     try:
         print("Iniciando Chromium...")
         service = webdriver.ChromeService(executable_path='/usr/bin/chromedriver')
@@ -37,7 +45,6 @@ def scrape_website(url):
             )
         except Exception as e:
             print(f"Erro ao esperar elemento: {str(e)}")
-            driver.quit()
             return {"error": f"Erro ao carregar os dados: {str(e)}"}
 
         html = driver.page_source
@@ -54,21 +61,24 @@ def scrape_website(url):
         price = price_wrapper.select_one('.price').get_text(strip=True) if price_wrapper else "N/A"
         print(f"Preço: {price}")
 
-        driver.quit()
-        print("Scrape finalizado com sucesso")
-
         return {
             "product_name": product_name,
             "price": price
         }
     except Exception as e:
         print(f"Erro durante o scrape: {str(e)}")
-        if 'driver' in locals():
+        return {"error": f"Erro durante o scrape: {str(e)}"}
+    finally:
+        if driver:
             try:
                 driver.quit()
             except:
                 pass
-        return {"error": f"Erro durante o scrape: {str(e)}"}
+        try:
+            # Limpar diretório temporário
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
 
 @app.route("/")
 def health_check():
