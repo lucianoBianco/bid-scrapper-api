@@ -17,10 +17,6 @@ def scrape_website(url):
     # os.makedirs("./cache-do-chrome", exist_ok=True)
     
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
     options.add_argument("--disable-software-rasterizer")
     options.add_argument("--disable-plugins")
@@ -28,7 +24,11 @@ def scrape_website(url):
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-notifications")
     options.add_argument("--disable-popup-blocking")
-    options.add_argument(f"--user-data-dir={user_data_dir}")
+
+    options.add_argument("--headless")  # Roda sem interface gráfica
+options.add_argument("--disable-gpu")  # Evita erros gráficos
+options.add_argument("--no-sandbox")  # Necessário em servidores remotos
+options.add_argument("--disable-dev-shm-usage")  # Evita problemas de memória
 
     options.binary_location = "/snap/bin/chromium"
     
