@@ -12,9 +12,9 @@ app = Flask(__name__)
 
 def scrape_website(url):
     print(f"Iniciando scrape da URL: {url}")
-    
+    user_data_dir = f"/tmp/chrome-data-{os.getpid()}"
     # Criar diretório temporário único para esta sessão
-    os.makedirs("./cache-do-chrome", exist_ok=True)
+    # os.makedirs("./cache-do-chrome", exist_ok=True)
     
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
@@ -28,7 +28,8 @@ def scrape_website(url):
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-notifications")
     options.add_argument("--disable-popup-blocking")
-    options.add_argument(f"--user-data-dir={temp_dir}")
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+
     options.binary_location = "/snap/bin/chromium"
     
     driver = None
